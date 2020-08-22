@@ -15,7 +15,7 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 
-from gamekings_const import SETTINGS, LANGUAGE, LOGIN_URL, convertToUnicodeString, log, TWITCH_URL_GAMEKINGS_TV, \
+from resources.lib.gamekings_const import SETTINGS, LANGUAGE, LOGIN_URL, convertToUnicodeString, log, TWITCH_URL_GAMEKINGS_TV, \
     VQ4K, VQ1080P, VQ720P, VQ480P, VQ360P, decodeString, MASTER_DOT_M3U8, HTTPSCOLONSLASHSLASH_ENCODED, END_TAG, STREAM
 
 #
