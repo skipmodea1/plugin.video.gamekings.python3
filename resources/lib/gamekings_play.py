@@ -133,7 +133,7 @@ class Main(object):
 
                                 # let's try getting the page after a succesful login, hopefully it contains a link to
                                 # the video now
-                                self.video_page_url = self.video_page_url + "/?login=success"
+                                self.video_page_url = self.video_page_url + "?login=success"
 
                                 log("self.video_page_url", self.video_page_url)
 
@@ -211,7 +211,7 @@ class Main(object):
 
                     decoded_m3u8_url = decodeString(encoded_m3u8_url)
 
-                    log("decoded_m3u8_url", decoded_m3u8_url)
+                    # log("decoded_m3u8_url", decoded_m3u8_url)
 
                     # The decoded m3u8 url should look something like this: https://gamekings.gcdn.co/videos/4457_Xp2EEOmd3SpDPb2S
                     # We have to lowercase the part before the last '/' to fix any uppercase digits (i guess my magic decoding isn't perfect ;))
@@ -311,7 +311,7 @@ class Main(object):
                             video_url = decoded_m3u8_url
                         else:
 
-                            log("video_quality_url", video_quality_url)
+                            # log("video_quality_url", video_quality_url)
 
                             # Find out if the altered m3u8 url exists
                             response = session.get(video_quality_url)
@@ -325,16 +325,20 @@ class Main(object):
                             else:
                                 video_url = decoded_m3u8_url
 
-                        log("decoded video_url", video_url)
+                        log("decoded video_url m3u8", video_url)
 
                         have_valid_url = True
                         no_url_found = False
+
 
             # Maybe it's something like this. Let's try and find the youtube id
             # <div id="videoplayer" data-autoplay="false" data-type="youtube" data-color="0567D8" data-url='https://youtu.be/hmGe65Wf9Hw' data-thumb='https://www.gamekings.tv/wp-content/uploads/robocop-terminator-mortal-kombat-11-1280x720.jpg' style='background-image: url(https://www.gamekings.tv/wp-content/uploads/robocop-terminator-mortal-kombat-11-1280x720.jpg);'>
             if have_valid_url:
                 pass
             else:
+
+                log("trying method ", "2")
+
                 start_pos_video_url = html_source.find("https://youtu.be/")
                 if start_pos_video_url >= 0:
                     end_pos_video_url = html_source.find("'", start_pos_video_url)
@@ -343,7 +347,24 @@ class Main(object):
                         youtube_id = youtube_id.replace("https://youtu.be/","")
                         youtube_id = youtube_id.strip()
 
-                        log("youtube_id", youtube_id)
+                    if youtube_id == '':
+                       if video_url.find("youtube") > 0:
+                            youtube_id = str(video_url)
+                            youtube_id = youtube_id.replace("https://www.youtube.com/embed/", "")
+                            youtube_id = youtube_id.replace("https://www.youtube.com/watch?v=", "")
+                            youtube_id = youtube_id.replace("https://www.youtube.com/watch", "")
+                            youtube_id = youtube_id.replace("https://www.youtube.com/", "")
+                            youtube_id = youtube_id[0:youtube_id.find("?")]
+                            youtube_id = youtube_id.strip()
+
+                    if youtube_id == '':
+                        pass
+                    else:
+                        youtube_id = youtube_id.strip()
+
+                        video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
+
+                        log("video_url", video_url)
 
                         have_valid_url = True
                         no_url_found = False
@@ -354,7 +375,7 @@ class Main(object):
         # I guess we try another way
         else:
 
-            log("trying method ", "2")
+            log("trying method ", "3")
 
             # Get the video url
             # <div class="content  content--page  content--bglight  content--blue">
@@ -427,6 +448,24 @@ class Main(object):
                     no_url_found = True
                     have_valid_url = False
                     video_url = ""
+                elif video_url.find("youtube") > 0:
+                    youtube_id = str(video_url)
+                    youtube_id = youtube_id.replace("https://www.youtube.com/embed/", "")
+                    youtube_id = youtube_id.replace("https://www.youtube.com/watch?v=", "")
+                    youtube_id = youtube_id.replace("https://www.youtube.com/watch", "")
+                    youtube_id = youtube_id.replace("https://www.youtube.com/", "")
+                    youtube_id = youtube_id[0:youtube_id.find("?")]
+                    youtube_id = youtube_id.strip()
+                    if youtube_id == '':
+                        no_url_found = True
+                        have_valid_url = False
+                        video_url = ""
+                    else:
+                        youtube_id = youtube_id.strip()
+
+                        video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
+
+                        log("video_url", video_url)
 
 
         dash_file_found = False
@@ -435,7 +474,7 @@ class Main(object):
         # I guess we try yet another way
         else:
 
-            log("trying method ", "3")
+            log("trying method ", "4")
 
             # https://muse.ai/embed/6EG5Wob?search=0&links=0&logo=0
             start_pos_video_url_embed = html_source.find("https://muse.ai/embed/")
@@ -444,7 +483,7 @@ class Main(object):
                 if end_pos_video_url_embed >= 0:
                     video_url_embed = html_source[start_pos_video_url_embed:end_pos_video_url_embed]
 
-                    log("video_url_embed", video_url_embed)
+                    # log("video_url_embed", video_url_embed)
 
                     headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
@@ -465,7 +504,7 @@ class Main(object):
                     html_source = response.text
                     html_source = convertToUnicodeString(html_source)
 
-                    log("html_source embed", html_source)
+                    # log("html_source embed", html_source)
 
                     video_url_start_pos = html_source.find("url")
                     if video_url_start_pos >= 0:
@@ -476,12 +515,12 @@ class Main(object):
                             # https://cdn.muse.ai/u/Czi97La/f4e5310bc42adcde16ff1b14fa7a56f7e61380b78befa674f666f1bca7ad8953/data
                             video_url_data = html_source[video_url_start_pos:video_url_end_pos]
 
-                            log("video_url_data", video_url_data)
+                            # log("video_url_data", video_url_data)
 
                             # https://cdn-eu.muse.ai/u/Czi97La/f4e5310bc42adcde16ff1b14fa7a56f7e61380b78befa674f666f1bca7ad8953/videos/dash.mpd
                             video_url_dash = video_url_data.replace("/data", "/videos/dash.mpd")
 
-                            log("video_url_dash", video_url_dash)
+                            # log("video_url_dash", video_url_dash)
 
                             video_url = video_url_dash
                             
@@ -489,40 +528,13 @@ class Main(object):
                             no_url_found = False
                             have_valid_url = True
 
-                            log("video_url", video_url)
+                            log("video_url dash", video_url)
 
         # Play video
         if have_valid_url:
-            # regular gamekings video's on vimeo look like this: https://player.vimeo.com/external/166503498.hd.mp4?s=c44264eced6082c0789371cb5209af96bc44035b
-            if video_url.find("player.vimeo.com/external/") > 0:
-                # no need to do anything with the vimeo addon, we can use the video_url directly
-                pass
-            # premium video's on vimeo look like this: https://player.vimeo.com/video/190106340?title=0&autoplay=1&portrait=0&badge=0&color=C7152F
-            if video_url.find("player.vimeo.com/video/") > 0:
-                # no need to do anything with the vimeo addon, we can use the video_url directly
-                pass
-            if youtube_id == '':
-                if video_url.find("youtube") > 0:
-                    youtube_id = str(video_url)
-                    youtube_id = youtube_id.replace("https://www.youtube.com/embed/", "")
-                    youtube_id = youtube_id.replace("https://www.youtube.com/watch?v=", "")
-                    youtube_id = youtube_id.replace("https://www.youtube.com/watch", "")
-                    youtube_id = youtube_id.replace("https://www.youtube.com/", "")
-                    youtube_id = youtube_id[0:youtube_id.find("?")]
-                    youtube_id = youtube_id.strip()
-
-                    log("youtube_id2", youtube_id)
-
-                    video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
-            else:
-                youtube_id = youtube_id.strip()
-
-                video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
-
-            log("final video_url", video_url)
-
             # It was a loooong and twisted walk, but at last we can try and play an actual video file
             list_item = xbmcgui.ListItem(path=video_url)
+
             # to play a dash file, we use the addon inputstream.adaptive (kudo's!!!)
             # we need to set some extra properties for this
             # see here: https://github.com/xbmc/inputstream.adaptive/wiki/Integration
