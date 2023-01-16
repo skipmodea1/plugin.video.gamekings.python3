@@ -369,14 +369,17 @@ class Main(object):
                         pass
                     else:
                         youtube_id = str(video_url)
+                        # remove stuff that is not the youtube id itself
                         youtube_id = youtube_id.replace("https://www.youtube.com/embed/", "")
                         youtube_id = youtube_id.replace("https://www.youtube.com/watch?v=", "")
                         youtube_id = youtube_id.replace("https://www.youtube.com/watch", "")
                         youtube_id = youtube_id.replace("https://www.youtube.com/", "")
                         youtube_id = youtube_id.replace("https://youtu.be/", "")
-                        youtube_id = youtube_id.replace("?feature=oembed", "")
-
+                        start_pos_question_mark = youtube_id.find("?")
+                        if start_pos_question_mark >= 0:
+                            youtube_id = youtube_id[0:start_pos_question_mark]
                         youtube_id = youtube_id.strip()
+
                         if youtube_id == '':
                             pass
                         else:
