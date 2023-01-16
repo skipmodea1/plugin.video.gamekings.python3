@@ -135,7 +135,7 @@ class Main(object):
                                 # the video now
                                 self.video_page_url = self.video_page_url + "?login=success"
 
-                                log("self.video_page_url", self.video_page_url)
+                                # log("self.video_page_url", self.video_page_url)
 
                                 response = session.get(self.video_page_url)
 
@@ -188,7 +188,7 @@ class Main(object):
             pass
         else:
 
-            log("trying method ", "1")
+            log("trying method ", "1 (m3u8)")
 
             # encoded container with the m3u8 url:
             # "c34696670236c6163737d32256d6265646d236f6e6471696e6562722e3c396662716d656027796464786d3226343032202865696768647d3223363032202372736d322
@@ -228,7 +228,7 @@ class Main(object):
                         # Lowercase the first part and add the filename of the m3u8-file
                         decoded_m3u8_url = first_part.lower() + second_part + "/" + MASTER_DOT_M3U8
 
-                        log("decoded_m3u8_url completed", decoded_m3u8_url)
+                        # log("decoded_m3u8_url completed", decoded_m3u8_url)
 
                         response = session.get(decoded_m3u8_url)
 
@@ -325,7 +325,9 @@ class Main(object):
                             else:
                                 video_url = decoded_m3u8_url
 
-                        log("decoded video_url m3u8", video_url)
+                        # log("decoded video_url m3u8", video_url)
+
+                        log("success with method ", "1 (m3u8)")
 
                         have_valid_url = True
                         no_url_found = False
@@ -337,37 +339,55 @@ class Main(object):
                 pass
             else:
 
-                log("trying method ", "2")
+                log("trying method ", "2 (youtube)")
 
-                start_pos_video_url = html_source.find("https://youtu.be/")
+                # lets ignore some urls
+                html_source = html_source.replace("https://www.youtube.com/gamekingsextra", "")
+                html_source = html_source.replace("https://www.youtube.com/Gamekingsextra", "")
+                html_source = html_source.replace("https://www.youtube.com/user/gamekingsextra/", "")
+                html_source = html_source.replace("https://www.youtube.com/user/Gamekingsextra/", "")
+                html_source = html_source.replace("www.youtube.com/channel/", "")
+                html_source = html_source.replace("www.youtube.com/Channel/", "")
+
+                start_pos_video_url = html_source.find("https://www.youtube.com/")
+                # let's try and something else
+                if start_pos_video_url < 0:
+                    start_pos_video_url = html_source.find("https://youtu.be/")
+
                 if start_pos_video_url >= 0:
-                    end_pos_video_url = html_source.find("'", start_pos_video_url)
-                    if end_pos_video_url >= 0:
-                        youtube_id = html_source[start_pos_video_url:end_pos_video_url]
-                        youtube_id = youtube_id.replace("https://youtu.be/","")
-                        youtube_id = youtube_id.strip()
+                    # Let's only use the video_url part
+                    html_source_split = str(html_source[start_pos_video_url:]).split()
+                    video_url = html_source_split[0]
 
-                    if youtube_id == '':
-                       if video_url.find("youtube") > 0:
-                            youtube_id = str(video_url)
-                            youtube_id = youtube_id.replace("https://www.youtube.com/embed/", "")
-                            youtube_id = youtube_id.replace("https://www.youtube.com/watch?v=", "")
-                            youtube_id = youtube_id.replace("https://www.youtube.com/watch", "")
-                            youtube_id = youtube_id.replace("https://www.youtube.com/", "")
-                            youtube_id = youtube_id[0:youtube_id.find("?")]
-                            youtube_id = youtube_id.strip()
+                    # Remove the quote on the last position
+                    if video_url.endswith('"') or video_url.endswith("'"):
+                        video_url = video_url[0:len(video_url) - 1]
 
-                    if youtube_id == '':
+                    # log("video_url after split and removing trailing quote", video_url)
+
+                    if video_url.find("target=") >= 0:
                         pass
                     else:
+                        youtube_id = str(video_url)
+                        youtube_id = youtube_id.replace("https://www.youtube.com/embed/", "")
+                        youtube_id = youtube_id.replace("https://www.youtube.com/watch?v=", "")
+                        youtube_id = youtube_id.replace("https://www.youtube.com/watch", "")
+                        youtube_id = youtube_id.replace("https://www.youtube.com/", "")
+                        youtube_id = youtube_id.replace("https://youtu.be/", "")
+                        youtube_id = youtube_id.replace("?feature=oembed", "")
+
                         youtube_id = youtube_id.strip()
+                        if youtube_id == '':
+                            pass
+                        else:
+                            no_url_found = False
+                            have_valid_url = True
 
-                        video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
+                            video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
 
-                        log("video_url", video_url)
+                            # log("video_url", video_url)
 
-                        have_valid_url = True
-                        no_url_found = False
+                            log("success with method ", "2 (youtube)")
 
 
         if have_valid_url:
@@ -375,7 +395,7 @@ class Main(object):
         # I guess we try another way
         else:
 
-            log("trying method ", "3")
+            log("trying method ", "3 (vimeo)")
 
             # Get the video url
             # <div class="content  content--page  content--bglight  content--blue">
@@ -403,19 +423,6 @@ class Main(object):
                 if start_pos_video_url >= 0:
                     no_url_found = False
                     have_valid_url = True
-                else:
-                    start_pos_video_url = html_source.find("https://www.youtube.com/")
-                    if start_pos_video_url >= 0:
-                        # Ignore a found "https://www.youtube.com/gamekingsextra"
-                        start_pos_youtube_gamekingsextra = html_source.find("https://www.youtube.com/gamekingsextra")
-                        if start_pos_video_url == start_pos_youtube_gamekingsextra:
-                            start_pos_video_url = html_source.find("https://www.youtube.com/", start_pos_youtube_gamekingsextra + 1)
-                            if start_pos_video_url >= 0:
-                                no_url_found = False
-                                have_valid_url = True
-                        else:
-                            no_url_found = False
-                            have_valid_url = True
 
             # Try to make a valid video url
             if have_valid_url:
@@ -430,13 +437,9 @@ class Main(object):
                 if video_url.endswith('"') or video_url.endswith("'"):
                     video_url = video_url[0:len(video_url) - 1]
 
-                log("video_url after split and removing trailing quote", video_url)
+                # log("video_url after split and removing trailing quote", video_url)
 
                 if video_url.find("target=") >= 0:
-                    no_url_found = True
-                    have_valid_url = False
-                    video_url = ""
-                elif video_url.find("www.youtube.com/channel/") >= 0:
                     no_url_found = True
                     have_valid_url = False
                     video_url = ""
@@ -444,28 +447,8 @@ class Main(object):
                     no_url_found = True
                     have_valid_url = False
                     video_url = ""
-                elif video_url.find("www.youtube.com/user/Gamekingsextra") >= 0:
-                    no_url_found = True
-                    have_valid_url = False
-                    video_url = ""
-                elif video_url.find("youtube") > 0:
-                    youtube_id = str(video_url)
-                    youtube_id = youtube_id.replace("https://www.youtube.com/embed/", "")
-                    youtube_id = youtube_id.replace("https://www.youtube.com/watch?v=", "")
-                    youtube_id = youtube_id.replace("https://www.youtube.com/watch", "")
-                    youtube_id = youtube_id.replace("https://www.youtube.com/", "")
-                    youtube_id = youtube_id[0:youtube_id.find("?")]
-                    youtube_id = youtube_id.strip()
-                    if youtube_id == '':
-                        no_url_found = True
-                        have_valid_url = False
-                        video_url = ""
-                    else:
-                        youtube_id = youtube_id.strip()
-
-                        video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
-
-                        log("video_url", video_url)
+                else:
+                    log("success with method ", "3 (vimeo)")
 
 
         dash_file_found = False
@@ -474,7 +457,7 @@ class Main(object):
         # I guess we try yet another way
         else:
 
-            log("trying method ", "4")
+            log("trying method ", "4 (dash)")
 
             # https://muse.ai/embed/6EG5Wob?search=0&links=0&logo=0
             start_pos_video_url_embed = html_source.find("https://muse.ai/embed/")
@@ -528,7 +511,9 @@ class Main(object):
                             no_url_found = False
                             have_valid_url = True
 
-                            log("video_url dash", video_url)
+                            # log("video_url dash", video_url)
+
+                            log("success with method ", "4 (dash)")
 
         # Play video
         if have_valid_url:
@@ -566,7 +551,7 @@ class Main(object):
 
         video_quality_url = ''
 
-        log("starting find_video_quality_url, this is the input", quality + "/" + str(response)+ "/" + decoded_m3u8_url)
+        # log("starting find_video_quality_url, this is the input", quality + "/" + str(response)+ "/" + decoded_m3u8_url)
 
         # the video url will be something like this:
         # https://gamekings.gcdn.co/videos//4457_Xp2EEOmd3SpDPb2S/master.m3u8
@@ -603,7 +588,7 @@ class Main(object):
                         second_part = line
                         video_quality_url = first_part + second_part
 
-            log("adjusted video_quality_url", video_quality_url)
+            # log("adjusted video_quality_url", video_quality_url)
 
         # log("returning video_quality_url", video_quality_url)
 
