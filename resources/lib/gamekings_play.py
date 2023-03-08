@@ -333,31 +333,31 @@ class Main(object):
                         no_url_found = False
 
 
-            # data-url='https://youtu.be/HKvJtxI0QDE'
-            if have_valid_url:
+        # data-url='https://youtu.be/HKvJtxI0QDE'
+        if have_valid_url:
+            pass
+        else:
+
+            log("trying method ", "2 (youtube)")
+
+            search_for_string = "data-url='https://youtu.be/"
+            start_pos_video_url = html_source.find(search_for_string)
+            if start_pos_video_url >= 0:
+                start_pos_youtube_id = start_pos_video_url + len(search_for_string)
+                end_pos_youtube_id = html_source.find("'", start_pos_youtube_id)
+                youtube_id = html_source[start_pos_youtube_id:end_pos_youtube_id]
+
+            if youtube_id == '':
                 pass
             else:
+                no_url_found = False
+                have_valid_url = True
 
-                log("trying method ", "2 (youtube)")
+                video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
 
-                search_for_string = "data-url='https://youtu.be/"
-                start_pos_video_url = html_source.find(search_for_string)
-                if start_pos_video_url >= 0:
-                    start_pos_youtube_id = start_pos_video_url + len(search_for_string)
-                    end_pos_youtube_id = html_source.find("'", start_pos_youtube_id)
-                    youtube_id = html_source[start_pos_youtube_id:end_pos_youtube_id]
+                # log("video_url", video_url)
 
-                if youtube_id == '':
-                    pass
-                else:
-                    no_url_found = False
-                    have_valid_url = True
-
-                    video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
-
-                    # log("video_url", video_url)
-
-                    log("success with method ", "2 (youtube)")
+                log("success with method ", "2 (youtube)")
 
 
         if have_valid_url:
