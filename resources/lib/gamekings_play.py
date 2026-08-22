@@ -342,6 +342,8 @@ class Main(object):
 
             # https://muse.ai/embed/6EG5Wob?search=0&links=0&logo=0
             start_pos_video_url_embed = html_source.find("https://muse.ai/embed/")
+            if start_pos_video_url_embed < 0:
+                start_pos_video_url_embed = html_source.find("https://skiv.com/embed/")
             if start_pos_video_url_embed >= 0:
                 end_pos_video_url_embed = html_source.find('"', start_pos_video_url_embed)
                 if end_pos_video_url_embed >= 0:
@@ -353,7 +355,7 @@ class Main(object):
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
                     'Accept-Language': 'en-US,en;q=0.5',
-                    'Referer': 'https://www.gamekings.tv/',
+                    'Referer': self.video_page_url.split('?', 1)[0],
                     'DNT': '1',
                     'Connection': 'keep-alive',
                     'Upgrade-Insecure-Requests': '1',
