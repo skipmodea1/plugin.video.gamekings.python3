@@ -240,8 +240,9 @@ class Main(object):
                     continue
 
             list_item = xbmcgui.ListItem(label=title)
-            list_item.setInfo("video", {"title": title, "studio": ADDON})
-            list_item.setInfo("mediatype", "video")
+            info = list_item.getVideoInfoTag()
+            info.setMediaType("video")
+            info.setTitle(title)
             list_item.setArt({'thumb': thumbnail_url, 'icon': thumbnail_url,
                               'fanart': os.path.join(IMAGES_PATH, 'fanart-blur.jpg')})
             list_item.setProperty('IsPlayable', 'true')

@@ -46,8 +46,8 @@ EXCLUDED_CATEGORY_SLUGS = {
     "uncategorized",
     "videos",
 }
-DATE = "2026-08-24"
-VERSION = "1.2.24"
+DATE = "2026-10-16"
+VERSION = "1.2.25"
 
 
 if sys.version_info[0] > 2:

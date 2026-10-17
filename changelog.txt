@@ -1,7 +1,10 @@
+v1.2.25 (2026-10-16)
+- replaced depricated ListItem.setInfo() with InfoTagVideo setters (Kodi 20 Nexus and higher)
+
 v1.2.24 (2026-08-24) (kudo's to SmashRocket)
-- Skiv premium playback fix
-- Show thumbnails for frontpage videos
-- Replace obsolete menu entries with categories
+- skiv premium playback fix
+- show thumbnails for frontpage videos
+- replace obsolete menu entries with categories
 
 v1.2.23 (2023-03-12)
 - improved constructing video urls
