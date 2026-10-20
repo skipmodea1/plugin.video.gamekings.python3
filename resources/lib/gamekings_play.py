@@ -149,37 +149,26 @@ class Main(object):
                             xbmcgui.Dialog().ok(LANGUAGE(30000), LANGUAGE(30604) % (str(response.status_code)))
                             sys.exit(1)
 
-                    except urllib.error.HTTPError as error:
+                    except requests.exceptions.RequestException as error:
 
-                        log("HTTPerror1", error)
+                        log("RequestException1", error)
 
                         xbmcgui.Dialog().ok(LANGUAGE(30000), LANGUAGE(30606) % (str(error)))
                         sys.exit(1)
-                    except:
-                        exception = sys.exc_info()[0]
 
-                        log("Exception1", exception)
-
-                        sys.exit(1)
                 # This is a premium video and the Premium-membership-switch in the settings is off
                 else:
                     xbmcgui.Dialog().ok(LANGUAGE(30000), LANGUAGE(30605))
                     sys.exit(1)
 
-        except urllib.error.HTTPError as error:
+        except requests.exceptions.RequestException as error:
 
-            log("HTTPerror2", error)
+            log("RequestException2", error)
 
             xbmcgui.Dialog().ok(LANGUAGE(30000), LANGUAGE(30606) % (str(error)))
             sys.exit(1)
-        except:
-            exception = sys.exc_info()[0]
 
-            log("Exception2", exception)
-
-            sys.exit(1)
-
-
+            
         have_valid_url = False
         no_url_found = True
         youtube_id = ''
@@ -451,25 +440,23 @@ class Main(object):
                 #log("html_source[start_pos_video_url:]", html_source[start_pos_video_url:])
 
                 # Let's only use the video_url part
-                html_source_split = str(html_source[start_pos_video_url:]).split()
-                video_url = html_source_split[0]
-
-                # Remove the quote on the last position
-                if video_url.endswith('"') or video_url.endswith("'"):
-                    video_url = video_url[0:len(video_url) - 1]
-
-                # log("video_url after split and removing trailing quote", video_url)
-
-                if video_url.find("target=") >= 0:
-                    no_url_found = True
-                    have_valid_url = False
-                    video_url = ""
-                elif video_url.find("player.vimeo.com/api/player.js") >= 0:
-                    no_url_found = True
-                    have_valid_url = False
-                    video_url = ""
+                end_pos_video_url = html_source.find("',", start_pos_video_url + 1)
+                if end_pos_video_url >= 0:
+                    video_url = html_source[start_pos_video_url:end_pos_video_url]
+                    if video_url.find("target=") >= 0:
+                        no_url_found = True
+                        have_valid_url = False
+                        video_url = ""
+                    elif video_url.find("player.vimeo.com/api/player.js") >= 0:
+                        no_url_found = True
+                        have_valid_url = False
+                        video_url = ""
+                    else:
+                        log("success with method ", "3 (vimeo)")
                 else:
-                    log("success with method ", "3 (vimeo)")
+                    no_url_found = True
+                    have_valid_url = False
+                    video_url = ""
 
 
         # data-url='https://youtu.be/HKvJtxI0QDE'
@@ -484,7 +471,9 @@ class Main(object):
             if start_pos_video_url >= 0:
                 start_pos_youtube_id = start_pos_video_url + len(search_for_string)
                 end_pos_youtube_id = html_source.find("'", start_pos_youtube_id)
-                youtube_id = html_source[start_pos_youtube_id:end_pos_youtube_id]
+                youtube_id = urllib.parse.urlsplit(
+                    'https://youtu.be/' + html_source[start_pos_youtube_id:end_pos_youtube_id]
+                ).path.lstrip('/')
 
             if youtube_id == '':
                 pass

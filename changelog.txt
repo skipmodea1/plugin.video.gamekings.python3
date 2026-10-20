@@ -1,5 +1,8 @@
 v1.2.25 (2026-10-16)
 - replaced depricated ListItem.setInfo() with InfoTagVideo setters (Kodi 20 Nexus and higher)
+- turned on pagination for premium videos
+- turned on pagination for searched videos
+- improved searching
 
 v1.2.24 (2026-08-24) (kudo's to SmashRocket)
 - skiv premium playback fix

@@ -42,19 +42,22 @@ class Main(object):
         # log("self.video_list_page_url", self.video_list_page_url)
 
         self.plugin_category = LANGUAGE(30004)
-        self.next_page_possible = "False"
+        self.next_page_possible = "True"
         # Get the search-string from the user
         keyboard = xbmc.Keyboard('', LANGUAGE(30004))
         keyboard.doModal()
         if keyboard.isConfirmed():
             self.search_string = keyboard.getText()
-            self.video_list_page_url = self.video_list_page_url % (self.search_string)
+            self.video_list_page_url = self.video_list_page_url % (urllib.parse.quote_plus(self.search_string))
+        else:
+            xbmcplugin.endOfDirectory(self.plugin_handle)
+            return
 
         log("self.video_list_page_url", self.video_list_page_url)
 
         if self.next_page_possible == 'True':
             # Determine current item number, next item number, next_url
-            # f.e. https://www.gamekings.tv/category/videos/page/001/
+            # f.e. https://www.gamekings.tv/page/001/?s=zelda
             pos_of_page = self.video_list_page_url.rfind('/page/')
             if pos_of_page >= 0:
                 page_number_str = str(
@@ -120,6 +123,8 @@ class Main(object):
 
         log("len(items", len(items))
 
+        skipped_items = 0
+
         for item in items:
             item = convertToUnicodeString(item)
 
@@ -128,11 +133,20 @@ class Main(object):
 
                 log("skipped item containing 'postcontainer'", item)
 
+                skipped_items = skipped_items + 1
                 continue
 
             # log("item", item)
 
-            video_page_url = item.a['href']
+            # skip the item if there is no href, prob a 404 page or something
+            try:
+                video_page_url = item.a['href']
+            except:
+
+                log("skipped video_page_url having no href (1)", item.a)
+
+                skipped_items = skipped_items + 1
+                continue
 
             # log("video_page_url", video_page_url)
 
@@ -143,6 +157,7 @@ class Main(object):
 
                 log("skipped video_page_url not ending on '/'", video_page_url)
 
+                skipped_items = skipped_items + 1
                 continue
 
             # this is category Videos or Afleveringen
@@ -158,6 +173,7 @@ class Main(object):
 
                     log("skipped video_page_url", video_page_url)
 
+                    skipped_items = skipped_items + 1
                     continue
 
             # Make title
@@ -165,6 +181,7 @@ class Main(object):
                 title = item.a['title']
             except:
                 # skip the item if it's got no title
+                skipped_items = skipped_items + 1
                 continue
 
             title = title.replace('-', ' ')
@@ -223,6 +240,7 @@ class Main(object):
 
                 log("skipping item with no thumbnail", item)
 
+                skipped_items = skipped_items + 1
                 continue
 
             list_item = xbmcgui.ListItem(label=title)
@@ -240,21 +258,25 @@ class Main(object):
             # Add our item to the listing as a 3-element tuple.
             listing.append((url, list_item, is_folder))
 
-        # Next page entry
-        if self.next_page_possible == 'True':
-            thumbnail_url = os.path.join(IMAGES_PATH, 'next-page.png')
-            list_item = xbmcgui.ListItem(LANGUAGE(30503))
-            list_item.setArt({'thumb': thumbnail_url, 'icon': thumbnail_url,
-                              'fanart': os.path.join(IMAGES_PATH, 'fanart-blur.jpg')})
-            list_item.setProperty('IsPlayable', 'false')
-            parameters = {"action": "list", "plugin_category": self.plugin_category, "url": str(self.next_url),
-                          "next_page_possible": self.next_page_possible}
-            url = self.plugin_url + '?' + urllib.parse.urlencode(parameters)
-            is_folder = True
-            # Add refresh option to context menu
-            list_item.addContextMenuItems([('Refresh', 'Container.Refresh')])
-            # Add our item to the listing as a 3-element tuple.
-            listing.append((url, list_item, is_folder))
+        log("len(items)", len(items))
+        log("skipped_items", skipped_items)
+
+        if len(items) - skipped_items > 0:
+            # Next page entry
+            if self.next_page_possible == 'True':
+                thumbnail_url = os.path.join(IMAGES_PATH, 'next-page.png')
+                list_item = xbmcgui.ListItem(LANGUAGE(30503))
+                list_item.setArt({'thumb': thumbnail_url, 'icon': thumbnail_url,
+                                  'fanart': os.path.join(IMAGES_PATH, 'fanart-blur.jpg')})
+                list_item.setProperty('IsPlayable', 'false')
+                parameters = {"action": "list", "plugin_category": self.plugin_category, "url": str(self.next_url),
+                              "next_page_possible": self.next_page_possible}
+                url = self.plugin_url + '?' + urllib.parse.urlencode(parameters)
+                is_folder = True
+                # Add refresh option to context menu
+                list_item.addContextMenuItems([('Refresh', 'Container.Refresh')])
+                # Add our item to the listing as a 3-element tuple.
+                listing.append((url, list_item, is_folder))
 
         # Add our listing to Kodi.
         # Large lists and/or slower systems benefit from adding all items at once via addDirectoryItems

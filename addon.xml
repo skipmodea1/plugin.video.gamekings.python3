@@ -31,6 +31,9 @@
     <source>https://github.com/skipmodea1/plugin.video.gamekings.python3</source>
     <news>v1.2.25 (2026-10-16)
     - replaced depricated ListItem.setInfo() with InfoTagVideo setters (Kodi 20 Nexus and higher)
+	- turned pagination on for premium videos
+	- turned pagination on for searched videos
+	- improved searching	
     </news>
     <assets>
       <icon>resources/icon.png</icon>

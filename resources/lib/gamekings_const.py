@@ -125,7 +125,7 @@ def decryptEncodedDigit(encoded_digit):
     key_value['66'] = 'f'
     key_value['76'] = 'g'
     key_value['86'] = 'h'
-    key_value['96'] = 'I'
+    key_value['96'] = 'i'
     key_value['A6'] = 'j'
     key_value['B6'] = 'k'
     key_value['C6'] = 'l'
