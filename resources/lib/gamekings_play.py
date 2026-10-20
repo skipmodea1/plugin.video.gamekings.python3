@@ -490,6 +490,9 @@ class Main(object):
 
         # Maybe it's something like this. Let's try and find the youtube id
         # <div id="videoplayer" data-autoplay="false" data-type="youtube" data-color="0567D8" data-url='https://youtu.be/hmGe65Wf9Hw' data-thumb='https://www.gamekings.tv/wp-content/uploads/robocop-terminator-mortal-kombat-11-1280x720.jpg' style='background-image: url(https://www.gamekings.tv/wp-content/uploads/robocop-terminator-mortal-kombat-11-1280x720.jpg);'>
+        # or
+        # '<iframe src="https://www.youtube.com/embed/HKvJtxI0QDE"></iframe>'
+
         if have_valid_url:
             pass
         else:
@@ -510,44 +513,45 @@ class Main(object):
                 start_pos_video_url = html_source.find("https://youtu.be/")
 
             if start_pos_video_url >= 0:
-                # Let's only use the video_url part
-                html_source_split = str(html_source[start_pos_video_url:]).split()
-                video_url = html_source_split[0]
+                # Find the left quote, this can be a single or double quote
+                left_quote = html_source[start_pos_video_url - 1:start_pos_video_url]
+                if left_quote in ('"', "'"):
+                    # Find the postion of right quote
+                    pos_right_quote = html_source.find(left_quote, start_pos_video_url + 1)
+                    if pos_right_quote >= 0:
+                        end_pos_video_url = pos_right_quote - 1
+                        video_url = html_source[start_pos_video_url:end_pos_video_url]
 
-                # Remove the quote on the last position
-                if video_url.endswith('"') or video_url.endswith("'"):
-                    video_url = video_url[0:len(video_url) - 1]
+                        log("video_url", video_url)
 
-                # log("video_url after split and removing trailing quote", video_url)
+                        if video_url.find("target=") >= 0:
+                            pass
+                        elif video_url.find("<span=") >= 0:
+                            pass
+                        else:
+                            youtube_id = str(video_url)
+                            # remove stuff that is not the youtube id itself
+                            youtube_id = youtube_id.replace("https://www.youtube.com/embed/", "")
+                            youtube_id = youtube_id.replace("https://www.youtube.com/watch?v=", "")
+                            youtube_id = youtube_id.replace("https://www.youtube.com/watch", "")
+                            youtube_id = youtube_id.replace("https://www.youtube.com/", "")
+                            youtube_id = youtube_id.replace("https://youtu.be/", "")
+                            start_pos_question_mark = youtube_id.find("?")
+                            if start_pos_question_mark >= 0:
+                                youtube_id = youtube_id[0:start_pos_question_mark]
+                            youtube_id = youtube_id.strip()
+        
+                            if youtube_id == '':
+                                pass
+                            else:
+                                no_url_found = False
+                                have_valid_url = True
 
-                if video_url.find("target=") >= 0:
-                    pass
-                elif video_url.find("<span=") >= 0:
-                    pass
-                else:
-                    youtube_id = str(video_url)
-                    # remove stuff that is not the youtube id itself
-                    youtube_id = youtube_id.replace("https://www.youtube.com/embed/", "")
-                    youtube_id = youtube_id.replace("https://www.youtube.com/watch?v=", "")
-                    youtube_id = youtube_id.replace("https://www.youtube.com/watch", "")
-                    youtube_id = youtube_id.replace("https://www.youtube.com/", "")
-                    youtube_id = youtube_id.replace("https://youtu.be/", "")
-                    start_pos_question_mark = youtube_id.find("?")
-                    if start_pos_question_mark >= 0:
-                        youtube_id = youtube_id[0:start_pos_question_mark]
-                    youtube_id = youtube_id.strip()
+                                video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
 
-                    if youtube_id == '':
-                        pass
-                    else:
-                        no_url_found = False
-                        have_valid_url = True
+                                # log("video_url", video_url)
 
-                        video_url = 'plugin://plugin.video.youtube/play/?video_id=%s' % youtube_id
-
-                        # log("video_url", video_url)
-
-                        log("success with method ", "4b (youtube)")
+                                log("success with method ", "4b (youtube)")
 
 
         # Play video
