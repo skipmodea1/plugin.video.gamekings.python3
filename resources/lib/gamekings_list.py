@@ -50,8 +50,9 @@ class Main(object):
             # f.e. https://www.gamekings.tv/category/videos/page/001/
             pos_of_page = self.video_list_page_url.rfind('/page/')
             if pos_of_page >= 0:
-                page_number_str = str(
-                    self.video_list_page_url[pos_of_page + len('/page/'):pos_of_page + len('/page/') + len('000')])
+                pos_of_item_number = pos_of_page + len('/page/')
+                pos_of_slash_after_item_number = pos_of_item_number + len('000')
+                page_number_str = str(self.video_list_page_url[pos_of_item_number:pos_of_slash_after_item_number])
                 page_number = int(page_number_str)
                 page_number_next = page_number + 1
                 if page_number_next >= 100:
@@ -60,7 +61,8 @@ class Main(object):
                     page_number_next_str = '0' + str(page_number_next)
                 else:
                     page_number_next_str = '00' + str(page_number_next)
-                self.next_url = str(self.video_list_page_url).replace(page_number_str, page_number_next_str)
+                self.next_url = (self.video_list_page_url[0:pos_of_item_number]
+                              + page_number_next_str + self.video_list_page_url[pos_of_slash_after_item_number:])
 
                 log("self.next_url", self.next_url)
 
@@ -141,7 +143,7 @@ class Main(object):
 
                     skipped_items = skipped_items + 1
                     continue
-                    
+
                 log("video_page_url", video_page_url)
 
                 parent = item.find_parent('section')
@@ -155,14 +157,14 @@ class Main(object):
 
                     skipped_items = skipped_items + 1
                     continue
-                
+
                 # skip the item if there is no href, prob a 404 page or something
                 try:
                     video_page_url = item.a['href']
                 except:
 
                     log("skipped video_page_url having no href (2)", item.a)
-                    
+
                     skipped_items = skipped_items + 1
                     continue
 
