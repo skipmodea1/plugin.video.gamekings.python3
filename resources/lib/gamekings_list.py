@@ -223,7 +223,7 @@ class Main(object):
             title = title.replace(' xvii ', ' XVII ')
             title = title.replace(' xviii ', ' XVIII ')
             title = title.replace(' xix ', ' XIX ')
-            title = title.replace(' xx ', ' XXX ')
+            title = title.replace(' xx ', ' XX ')
             title = title.replace(' xxi ', ' XXI ')
             title = title.replace(' xxii ', ' XXII ')
             title = title.replace(' xxiii ', ' XXIII ')
