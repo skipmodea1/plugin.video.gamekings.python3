@@ -172,15 +172,7 @@ msgid "Error getting page: %s"
 msgstr ""
 
 msgctxt "#30601"
-msgid "Login has failed for this Premium video. In settings "
-msgstr ""
-
-msgctxt "#30602"
-msgid "enter the correct username and password. Or turn off"
-msgstr ""
-
-msgctxt "#30603"
-msgid "the Gamekings-Premium-membership-switch if you are not a member."
+msgid "Login has failed for this Premium video. In settings enter the correct username and password. Or turn off the Gamekings-Premium-membership switch if you are not a member."
 msgstr ""
 
 msgctxt "#30604"

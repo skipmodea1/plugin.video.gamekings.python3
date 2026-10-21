@@ -172,16 +172,8 @@ msgid "Error getting page: %s."
 msgstr "Fout bij ophalen van pagina %s."
 
 msgctxt "#30601"
-msgid "Login has failed for this Premium video. In settings "
-msgstr "Login is mislukt voor deze Premium video. In settings"
-
-msgctxt "#30602"
-msgid "enter the correct username and password. Or turn off"
-msgstr "voer de correcte gebruikersnaam en wachtwoord in. Of"
-
-msgctxt "#30603"
-msgid "the Gamekings-Premium-membership-switch if you are not a member."
-msgstr "zet Gameking Premium-lidmaatschap-switch uit als u geen lid bent."
+msgid "Login has failed for this Premium video. In settings enter the correct username and password. Or turn off the Gamekings-Premium-membership switch if you are not a member."
+msgstr "Login is mislukt voor deze Premium video. In settings voer de correcte gebruikersnaam en wachtwoord in. Of zet de Gameking Premium-lidmaatschap schakelaar uit als u geen lid bent."
 
 msgctxt "#30604"
 msgid "Login Failed: %s."

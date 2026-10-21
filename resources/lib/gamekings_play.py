@@ -123,12 +123,9 @@ class Main(object):
 
                                 log("Login Error!", "login was NOT successful!")
 
-                                xbmcgui.Dialog().ok(LANGUAGE(30000), LANGUAGE(30601), LANGUAGE(30602),
-                                                    LANGUAGE(30603))
+                                xbmcgui.Dialog().ok(LANGUAGE(30000), LANGUAGE(30601))
                                 sys.exit(1)
                             else:
-                                # dialog_wait.create("Login Successful", "Currently looking for video")
-
                                 log("Login", "login was successful!!")
 
                                 # let's try getting the page after a successful login, hopefully it contains a link to
